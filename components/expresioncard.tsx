@@ -1,3 +1,4 @@
+// components/expresioncard.tsx
 import { StyleSheet, Text, View } from 'react-native';
 import { Category, Expense } from '../types';
 

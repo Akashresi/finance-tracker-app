@@ -1,8 +1,9 @@
+// app/tabs/chatbot.tsx
 import { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Send, Bot, User } from 'lucide-react-native';
-import { ChatMessage } from '../../types';
+import { ChatMessage } from '../../types'; // Correct path
 
 const SAMPLE_RESPONSES: { [key: string]: string } = {
   'spending': 'Based on your recent expenses, you spent $85.50 this week. Your top category is Food & Dining at $45.50.',

@@ -1,7 +1,8 @@
 // app/resetPassword.tsx
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+// ✅ 'View' has been removed from this line
+import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native"; 
 import api from "../api/api";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";

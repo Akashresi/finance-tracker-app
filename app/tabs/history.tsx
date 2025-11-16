@@ -1,90 +1,57 @@
 // app/tabs/history.tsx
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from '@react-navigation/native';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
-    Alert,
+    // ✅ 'Alert' removed
     FlatList,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    ActivityIndicator
 } from "react-native";
-import AppButton from "../../components/AppButton"; // ✅ Correct Path
-import ScreenWrapper from "../../components/ScreenWrapper"; // ✅ Correct Path
-import { COLORS, SIZING } from "../../constants/theme"; // ✅ Correct Path
-
-// ✅ FIX: Added missing type definition
-type Transaction = {
-  id: string;
-  type: "credit" | "debit";
-  amount: number;
-  category: string;
-  source: "bank" | "cash";
-  note?: string;
-  timestamp: string;
-};
-
-const STORAGE_KEY = "@transactions";
+// ✅ 'AppButton' removed
+import ScreenWrapper from "../../components/ScreenWrapper";
+import { COLORS, SIZING } from "../../constants/theme";
+import { useExpenses, Expense } from "../../contexts/ExpenseContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function HistoryTab() {
-  // ✅ FIX: Added missing state definitions
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [credits, setCredits] = useState<Transaction[]>([]);
-  const [debits, setDebits] = useState<Transaction[]>([]);
-  const [activeTab, setActiveTab] = useState<"credit" | "debit">("debit");
-  
+  const { expenses, fetchExpenses } = useExpenses();
+  const { user } = useAuth();
   const isFocused = useIsFocused();
+  const [loading, setLoading] = useState(false);
+
+  const [credits, setCredits] = useState<Expense[]>([]);
+  const [debits, setDebits] = useState<Expense[]>([]);
+  const [activeTab, setActiveTab] = useState<"credit" | "debit">("debit");
+
+  const loadData = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    await fetchExpenses();
+    setLoading(false);
+  }, [user, fetchExpenses]);
 
   useEffect(() => {
     if (isFocused) {
-      loadHistory();
+      loadData();
     }
-  }, [isFocused]);
+  }, [isFocused, loadData]);
 
-  // ✅ FIX: Added missing functions
-  const loadHistory = async () => {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: Transaction[] = JSON.parse(raw);
-        setTransactions(parsed);
-        setCredits(parsed.filter((t) => t.type === "credit"));
-        setDebits(parsed.filter((t) => t.type === "debit"));
-      } else {
-        setTransactions([]);
-        setCredits([]);
-        setDebits([]);
-      }
-    } catch (e) {
-      console.warn("Error loading history", e);
-    }
-  };
+  // Process expenses from context
+  useEffect(() => {
+    setCredits(expenses.filter((t) => t.type === "credit"));
+    setDebits(expenses.filter((t) => t.type === "debit"));
+  }, [expenses]);
 
-  const clearHistory = async () => {
-    Alert.alert("Confirm", "Do you really want to clear all history?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Clear",
-        style: "destructive",
-        onPress: async () => {
-          await AsyncStorage.removeItem(STORAGE_KEY);
-          setTransactions([]);
-          setCredits([]);
-          setDebits([]);
-          Alert.alert("History cleared");
-        },
-      },
-    ]);
-  };
-
-  const renderTransaction = ({ item }: { item: Transaction }) => (
+  const renderTransaction = ({ item }: { item: Expense }) => (
     <View style={styles.txRow}>
       <View>
         <Text style={styles.txCategory}>{item.category}</Text>
-        <Text style={styles.txNote}>{item.note}</Text>
+        <Text style={styles.txNote}>{item.description}</Text>
         <Text style={styles.txTime}>
-          {new Date(item.timestamp).toLocaleString()}
+          {new Date(item.date || new Date()).toLocaleString()}
         </Text>
       </View>
       <Text
@@ -141,7 +108,9 @@ export default function HistoryTab() {
       </View>
 
       <View style={styles.section}>
-        {currentData.length === 0 ? (
+        {loading ? (
+          <ActivityIndicator size="large" color={COLORS.primary} style={{marginTop: 20}} />
+        ) : currentData.length === 0 ? (
           <Text style={styles.emptyText}>
             {activeTab === "credit"
               ? "No balance additions yet."
@@ -150,19 +119,13 @@ export default function HistoryTab() {
         ) : (
           <FlatList
             data={currentData}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => (item.id ? item.id.toString() : Math.random().toString())}
             renderItem={renderTransaction}
           />
         )}
       </View>
-
-      {transactions.length > 0 && (
-        <AppButton
-          title="Clear All History"
-          onPress={clearHistory}
-          variant="danger"
-        />
-      )}
+      
+      {/* ✅ Removed the "Clear History" button */}
     </ScreenWrapper>
   );
 }
@@ -212,7 +175,7 @@ const styles = StyleSheet.create({
     padding: SIZING.md,
     marginBottom: SIZING.lg,
   },
-  emptyText: { // ✅ FIX: Added missing style
+  emptyText: {
     textAlign: "center",
     color: COLORS.grayDark,
     marginVertical: 20,

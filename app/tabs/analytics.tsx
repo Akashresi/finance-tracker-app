@@ -1,15 +1,13 @@
 // app/tabs/analytics.tsx
 import { AlertCircle, TrendingUp } from "lucide-react-native";
 import { useEffect, useState } from "react";
-// ✅ FIX: Removed ScrollView from this import
 import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from "react-native";
 import { BarChart, LineChart, PieChart } from "react-native-chart-kit";
 import api from "../../api/api";
-import ScreenWrapper from "../../components/ScreenWrapper"; // Changed path
 import { useAuth } from "../../contexts/AuthContext";
-import { COLORS, SIZING } from "../../constants/theme"; // Changed path
+import ScreenWrapper from "../../components/ScreenWrapper";
+import { COLORS, SIZING } from "../../constants/theme";
 
-// ... (Interfaces are correct)
 interface Expense {
   id: number;
   category: string;
@@ -17,6 +15,7 @@ interface Expense {
   date: string;
   user_id: number;
 }
+
 interface CategoryData {
   name: string;
   amount: number;
@@ -26,7 +25,6 @@ interface CategoryData {
 }
 
 export default function AnalyticsScreen() {
-  // ... (All state and logic functions are correct) ...
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categorySpending, setCategorySpending] = useState<CategoryData[]>([]);
@@ -50,7 +48,8 @@ export default function AnalyticsScreen() {
       if (!user?.id) return; 
       setLoading(true);
       try {
-        const res = await api.get(`/expenses/${user.id}`); 
+        // This route should be protected and get user from token
+        const res = await api.get(`/expenses/`); 
         const data = res.data || [];
         setExpenses(data);
         processAnalytics(data);

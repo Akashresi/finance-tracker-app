@@ -1,4 +1,4 @@
-// app/components/AppTextInput.tsx
+// components/AppTextInput.tsx
 import React from 'react';
 import { 
   TextInput, 
@@ -8,7 +8,6 @@ import {
   StyleProp,
   TextStyle
 } from 'react-native';
-// ✅ FIX: Corrected the import path
 import { COLORS, SIZING } from '../constants/theme';
 
 interface AppTextInputProps extends TextInputProps {

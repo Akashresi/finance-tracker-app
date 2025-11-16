@@ -1,8 +1,8 @@
 // app/tabs/_layout.tsx
 import { Tabs } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { ExpenseProvider } from "../../contexts/ExpenseContext"; // ✅ Correct Path
-import { COLORS, SIZING } from "../../constants/theme"; // ✅ Correct Path
+import { ExpenseProvider } from "../../contexts/ExpenseContext";
+import { COLORS, SIZING } from "../../constants/theme";
 
 export default function TabsLayout() {
   return (

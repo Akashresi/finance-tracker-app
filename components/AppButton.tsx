@@ -1,7 +1,6 @@
-// app/components/AppButton.tsx
+// components/AppButton.tsx
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
-// ✅ FIX: Corrected the import path
 import { COLORS, SIZING } from '../constants/theme';
 
 type AppButtonProps = {

@@ -1,3 +1,4 @@
+// utils/mockData.ts
 import { Category, Expense, Budget, SavingsGoal } from '../types';
 
 export const DEFAULT_CATEGORIES: Category[] = [

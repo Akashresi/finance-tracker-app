@@ -1,4 +1,4 @@
-// my-app/app/_layout.tsx
+// app/_layout.tsx
 import { Stack } from "expo-router";
 import { AuthProvider } from "../contexts/AuthContext";
 

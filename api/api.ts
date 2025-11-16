@@ -1,4 +1,4 @@
-// frontend/api/api.ts
+// api/api.ts
 import axios, { AxiosInstance } from "axios";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,24 +20,22 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-// ✅ ENHANCEMENT: Use an interceptor to automatically add auth tokens
-// or user data as needed.
+// ENHANCEMENT: Use an interceptor to automatically add auth tokens
 api.interceptors.request.use(
   async (config) => {
-    // In a real JWT flow, you'd store and retrieve a token.
-    // const token = await AsyncStorage.getItem("@token");
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // 1. Get the token from storage
+    const token = await AsyncStorage.getItem("@token");
     
-    // For your app's flow (e.g., saving goals), we need the user_id.
-    // This isn't a great pattern, but it matches your backend needs
-    // for the PATCH request on savings.
+    // 2. If the token exists, add it to the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    // 3. For your saving goals PATCH request, add user_id as a query param
     if (config.method === 'patch' && config.url?.includes('/goals/')) {
         const userRaw = await AsyncStorage.getItem("@user");
         if (userRaw) {
             const user = JSON.parse(userRaw);
-            // Add user_id as a query param as required by your new backend
             config.params = { ...config.params, user_id: user.id };
         }
     }

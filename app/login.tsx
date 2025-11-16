@@ -1,5 +1,4 @@
 // app/login.tsx
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -27,11 +26,11 @@ export default function Login() {
     try {
       const res = await api.post("/auth/login", { email, password });
 
-      if (res.data && res.data.user) {
+      if (res.data && res.data.user && res.data.access_token) {
         const user = res.data.user;
-        await AsyncStorage.setItem("@user", JSON.stringify(user));
+        const token = res.data.access_token;
         
-        login(user.id, "", user); 
+        await login(user, token); // This function now handles storage
 
         Alert.alert("Login successful");
         router.replace("/tabs");
@@ -66,7 +65,7 @@ export default function Login() {
       />
 
       <View style={styles.forgotPasswordContainer}>
-        <TouchableOpacity onPress={() => router.push("../resetPassword")}>
+        <TouchableOpacity onPress={() => router.push("/resetPassword")}>
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>

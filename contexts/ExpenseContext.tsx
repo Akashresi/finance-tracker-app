@@ -2,9 +2,7 @@
 import React, {
   createContext,
   ReactNode,
-  useCallback // ✅ Import useCallback
-  ,
-
+  useCallback,
   useContext,
   useEffect,
   useState
@@ -19,6 +17,7 @@ export type Expense = {
   amount: number;
   description?: string;
   date?: string;
+  type: "credit" | "debit"; // This type is now required
 };
 
 type ExpenseContextType = {
@@ -33,24 +32,25 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
-  // ✅ FIX: Wrap fetchExpenses in useCallback
   const fetchExpenses = useCallback(async () => {
     if (!user?.id) {
       setExpenses([]);
       return;
     }
     try {
-      const res = await api.get(`/expenses/${user.id}`);
+      // This route is protected and gets expenses for the token's user
+      const res = await api.get(`/expenses/`);
       setExpenses(res.data || []);
     } catch (err) {
       console.warn("fetchExpenses error", err);
     }
-  }, [user]); // ✅ It only changes when the user changes
+  }, [user]);
 
   const addExpense = async (e: Omit<Expense, "id">) => {
     try {
+      // This route is protected
       await api.post("/expenses/", e);
-      await fetchExpenses();
+      await fetchExpenses(); // Refresh the list
     } catch (err) {
       console.warn("addExpense error", err);
     }
@@ -58,7 +58,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   useEffect(() => {
     fetchExpenses();
-  }, [fetchExpenses]); // ✅ FIX: Add fetchExpenses to the dependency array
+  }, [fetchExpenses]);
 
   return (
     <ExpenseContext.Provider value={{ expenses, fetchExpenses, addExpense }}>

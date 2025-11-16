@@ -1,3 +1,4 @@
+// components/progressBar.tsx
 import { View, StyleSheet } from 'react-native';
 
 interface ProgressBarProps {

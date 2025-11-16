@@ -8,16 +8,16 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    ScrollView // Import ScrollView
 } from "react-native";
-import api from "../../api/api"; // ✅ Correct Path
-import AppButton from "../../components/AppButton"; // ✅ Correct Path
-import AppTextInput from "../../components/AppTextInput"; // ✅ Correct Path
-import ScreenWrapper from "../../components/ScreenWrapper"; // ✅ Correct Path
-import { useAuth } from "../../contexts/AuthContext"; // ✅ Correct Path
-import { COLORS, SIZING } from "../../constants/theme"; // ✅ Correct Path
+import api from "../../api/api";
+import AppButton from "../../components/AppButton";
+import AppTextInput from "../../components/AppTextInput";
+import ScreenWrapper from "../../components/ScreenWrapper";
+import { useAuth } from "../../contexts/AuthContext";
+import { COLORS, SIZING } from "../../constants/theme";
 
-// ✅ FIX: Added missing type definition
 interface SavingGoal {
   id: number;
   title: string;
@@ -30,7 +30,6 @@ const SavingsScreen: React.FC = () => {
   const { user } = useAuth();
   const isFocused = useIsFocused();
   
-  // ✅ FIX: Added missing state definitions
   const [goals, setGoals] = useState<SavingGoal[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoal, setNewGoal] = useState("");
@@ -54,8 +53,9 @@ const SavingsScreen: React.FC = () => {
 
     setLoading(true);
     try {
+      // These routes must be protected on the backend
       const [resGoals, resAnalysis] = await Promise.all([
-        api.get(`/goals/user/${user.id}`),
+        api.get(`/goals/user/${user.id}`), 
         api.get(`/expenses/analysis/${user.id}`),
       ]);
 
@@ -68,8 +68,8 @@ const SavingsScreen: React.FC = () => {
       setWeeklySaved(data.saved_this_week);
       setMonthlySaved(data.saved_this_month);
       
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (error: any) {
+      console.error("Error fetching data:", error?.response?.data || error.message);
       Alert.alert("Error", "Unable to fetch savings data.");
     } finally {
       setLoading(false);
@@ -117,6 +117,7 @@ const SavingsScreen: React.FC = () => {
       parseFloat(selectedGoal.saved_amount.toString()) + parseFloat(saveAmount);
 
     try {
+      // The interceptor adds user_id as a query param
       const res = await api.patch(`/goals/${selectedGoal.id}`, { 
         saved_amount: newTotalSavedAmount 
       });
@@ -177,35 +178,38 @@ const SavingsScreen: React.FC = () => {
         </View>
       </View>
 
-      {goals.length > 0 ? (
-        goals.map((goal) => {
-          const progress =
-            (goal.saved_amount / goal.target_amount) * 100 || 0;
-          return (
-            <View key={goal.id} style={styles.goalCard}>
-              <Text style={styles.goalTitle}>{goal.title}</Text>
-              <Text style={styles.goalProgress}>
-                ₹{goal.saved_amount} / ₹{goal.target_amount}
-              </Text>
-              <View style={styles.progressBar}>
-                <View
-                  style={[styles.progressFill, { width: `${progress}%` }]}
+      {/* Wrap goals list in ScrollView - this was missing */}
+      <ScrollView> 
+        {goals.length > 0 ? (
+          goals.map((goal) => {
+            const progress =
+              (goal.saved_amount / goal.target_amount) * 100 || 0;
+            return (
+              <View key={goal.id} style={styles.goalCard}>
+                <Text style={styles.goalTitle}>{goal.title}</Text>
+                <Text style={styles.goalProgress}>
+                  ₹{goal.saved_amount} / ₹{goal.target_amount}
+                </Text>
+                <View style={styles.progressBar}>
+                  <View
+                    style={[styles.progressFill, { width: `${progress}%` }]}
+                  />
+                </View>
+                <AppButton
+                  title="+ Add Savings"
+                  onPress={() => {
+                    setSelectedGoal(goal);
+                    setSaveModalVisible(true);
+                  }}
+                  variant="success"
                 />
               </View>
-              <AppButton
-                title="+ Add Savings"
-                onPress={() => {
-                  setSelectedGoal(goal);
-                  setSaveModalVisible(true);
-                }}
-                variant="success"
-              />
-            </View>
-          );
-        })
-      ) : (
-        <Text style={styles.noGoals}>No goals yet. Start by adding one!</Text>
-      )}
+            );
+          })
+        ) : (
+          <Text style={styles.noGoals}>No goals yet. Start by adding one!</Text>
+        )}
+      </ScrollView>
 
       <AppButton
         title="+ Add New Goal"
@@ -243,7 +247,7 @@ const SavingsScreen: React.FC = () => {
          <View style={styles.modalView}>
             <Text style={styles.modalTitle}>
               Add Savings for {selectedGoal?.title}
-            </Text> {/* ✅ FIX: Typo <Text> not <T> */}
+            </Text>
             <AppTextInput
               placeholder="Amount to add (₹)"
               keyboardType="numeric"
@@ -286,7 +290,7 @@ const styles = StyleSheet.create({
   },
   statValue: { fontSize: 20, fontWeight: "700", color: COLORS.primary },
   statLabel: { fontSize: 14, color: COLORS.grayDark, marginTop: 5, textAlign: "center" },
-  goalCard: { // ✅ FIX: Added missing style
+  goalCard: {
     backgroundColor: COLORS.white,
     borderRadius: SIZING.radius,
     padding: SIZING.md,
@@ -313,13 +317,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  modalView: { // ✅ FIX: Added missing style
+  modalView: {
     backgroundColor: COLORS.white,
     padding: SIZING.lg,
     borderRadius: SIZING.radius,
     width: "90%",
   },
-  modalTitle: { // ✅ FIX: Added missing style
+  modalTitle: {
     fontSize: SIZING.h3,
     fontWeight: "700",
     marginBottom: SIZING.md,

@@ -1,3 +1,4 @@
+// utils/calculation.ts
 import { Expense } from '../types';
 
 export const calculateTotalExpenses = (expenses: Expense[]): number => {

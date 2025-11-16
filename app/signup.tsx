@@ -1,5 +1,4 @@
 // app/signup.tsx
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -47,10 +46,11 @@ export default function Signup() {
     try {
       const res = await api.post("/auth/register", payload);
 
-      if (res.data && res.data.user) {
+      if (res.data && res.data.user && res.data.access_token) {
         const user = res.data.user;
-        await AsyncStorage.setItem("@user", JSON.stringify(user));
-        login(user.id, "", user);
+        const token = res.data.access_token;
+
+        await login(user, token); // This function now handles storage
         
         Alert.alert("Registered", "You are now logged in.", [
           { text: "OK", onPress: () => router.replace("/tabs") },

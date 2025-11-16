@@ -1,6 +1,6 @@
-// frontend/contexts/AuthContext.tsx
+// contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // ✅ Import
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type User = {
   id: number;
@@ -12,37 +12,44 @@ type User = {
 };
 
 type AuthContextType = {
-  userId: number | null;
   token: string | null;
-  user: User | null; // ✅ Use a strong type
-  login: (id: number, token: string, userData?: User) => void;
-  logout: () => Promise<void>; // ✅ Make async
+  user: User | null;
+  login: (user: User, token: string) => Promise<void>; 
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [userId, setUserId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (id: number, token: string, userData?: User) => {
-    setUserId(id);
+  const login = async (user: User, token: string) => {
+    await AsyncStorage.setItem("@token", token);
+    await AsyncStorage.setItem("@user", JSON.stringify(user));
     setToken(token);
-    if (userData) setUser(userData);
+    setUser(user);
   };
 
   const logout = async () => {
-    // ✅ ENHANCEMENT: Clear user from storage on logout
     await AsyncStorage.removeItem("@user");
-    await AsyncStorage.removeItem("@transactions"); // Also clear local data
-    setUserId(null);
+    await AsyncStorage.removeItem("@token");
+    await AsyncStorage.removeItem("@transactions"); // Also clear legacy local data
     setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ userId, token, user, login, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        token, 
+        user, 
+        login, 
+        logout, 
+        isAuthenticated: !!token
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

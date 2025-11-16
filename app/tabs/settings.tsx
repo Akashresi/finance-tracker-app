@@ -1,10 +1,10 @@
 // app/tabs/settings.tsx
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
-import AppButton from "../../components/AppButton"; // ✅ Correct Path
-import ScreenWrapper from "../../components/ScreenWrapper"; // ✅ Correct Path
-import { useAuth } from "../../contexts/AuthContext"; // ✅ Correct Path
-import { COLORS, SIZING } from "../../constants/theme"; // ✅ Correct Path
+import AppButton from "../../components/AppButton";
+import ScreenWrapper from "../../components/ScreenWrapper";
+import { useAuth } from "../../contexts/AuthContext";
+import { COLORS, SIZING } from "../../constants/theme";
 
 export default function Settings() {
   const router = useRouter();
