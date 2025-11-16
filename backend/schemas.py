@@ -79,3 +79,14 @@ class RegisterResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+# ✅ ADD THIS NEW SCHEMA FOR VERIFICATION
+class UserVerifyRequest(BaseModel):
+    email: str
+    name: str
+    date_of_birth: DateType
+
+# ✅ ADD THIS NEW SCHEMA FOR PASSWORD RESET
+class PasswordResetRequest(BaseModel):
+    email: str  # The email of the user to update
+    new_password: str

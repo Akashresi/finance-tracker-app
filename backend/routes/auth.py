@@ -37,3 +37,32 @@ def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
         "message": "Login successful",
         "user": schemas.UserResponse.model_validate(existing)
     }
+
+router.post("/verify-details")
+def verify_user_for_reset(details: schemas.UserVerifyRequest, db: Session = Depends(get_db)):
+    """
+    Verify user's identity before allowing a password reset.
+    """
+    user = crud.verify_user_details(db, details=details)
+    if not user:
+        raise HTTPException(status_code=404, detail="User details do not match.")
+    
+    return {"message": "User verified successfully."}
+
+# ✅ ADD THIS NEW ENDPOINT FOR RESETTING THE PASSWORD
+@router.post("/reset-password")
+def reset_password(request: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
+    """
+    Reset a user's password after they have been verified.
+    """
+    # Hash the new password before updating
+    user = crud.update_user_password_by_email(
+        db, 
+        email=request.email, 
+        new_password=request.new_password
+    )
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+        
+    return {"message": "Password updated successfully."}

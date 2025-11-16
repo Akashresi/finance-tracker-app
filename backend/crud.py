@@ -1,7 +1,7 @@
 # backend/crud.py
 from sqlalchemy.orm import Session  # ✅ FIX: Import Session
 from sqlalchemy import func, extract
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta , date as DateType
 from models import User, Expense, SavingGoal
 import schemas
 from passlib.context import CryptContext
@@ -124,3 +124,26 @@ def update_saving_goal_amount(db: Session, goal_id: int, user_id: int, goal_upda
     db.commit()
     db.refresh(goal)
     return goal
+
+def verify_user_details(db: Session, details: schemas.UserVerifyRequest) -> Optional[User]:
+    """
+    Finds a user only if email, name, AND date_of_birth match.
+    """
+    return db.query(User).filter(
+        User.email == details.email,
+        User.name == details.name,
+        User.date_of_birth == details.date_of_birth
+    ).first()
+
+# ✅ ADD THIS NEW FUNCTION TO UPDATE PASSWORD
+def update_user_password_by_email(db: Session, email: str, new_password: str) -> Optional[User]:
+    """
+    Finds a user by email and updates their password with a new hash.
+    """
+    user = get_user_by_email(db, email=email)
+    if user:
+        user.password = hash_password(new_password)
+        db.commit()
+        db.refresh(user)
+        return user
+    return None

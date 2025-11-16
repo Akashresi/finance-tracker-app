@@ -2,13 +2,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import api from "../api/api";
-import AppButton from "../components/AppButton"; // ✅ Correct Path
-import AppTextInput from "../components/AppTextInput"; // ✅ Correct Path
-import ScreenWrapper from "../components/ScreenWrapper"; // ✅ Correct Path
+import AppButton from "../components/AppButton"; 
+import AppTextInput from "../components/AppTextInput"; 
+import ScreenWrapper from "../components/ScreenWrapper"; 
 import { useAuth } from "../contexts/AuthContext";
-import { COLORS, SIZING } from "../constants/theme"; // ✅ Correct Path
+import { COLORS, SIZING } from "../constants/theme"; 
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -65,6 +65,12 @@ export default function Login() {
         secureTextEntry
       />
 
+      <View style={styles.forgotPasswordContainer}>
+        <TouchableOpacity onPress={() => router.push("../resetPassword")}>
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+      </View>
+
       <AppButton
         title="Login"
         onPress={handleLogin}
@@ -92,6 +98,16 @@ const styles = StyleSheet.create({
     marginBottom: SIZING.xl,
     textAlign: "center",
     color: COLORS.text,
+  },
+  forgotPasswordContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
+    marginBottom: SIZING.sm,
+  },
+  forgotPasswordText: {
+    color: COLORS.primary,
+    fontSize: SIZING.caption,
+    fontWeight: '600',
   },
   signupLink: {
     alignItems: 'center',

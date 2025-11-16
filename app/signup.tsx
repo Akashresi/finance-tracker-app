@@ -2,13 +2,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
-import api from "../api/api"; // ✅ Correct Path
-import AppButton from "../components/AppButton"; // ✅ Correct Path
-import AppTextInput from "../components/AppTextInput"; // ✅ Correct Path
-import ScreenWrapper from "../components/ScreenWrapper"; // ✅ Correct Path
-import { useAuth } from "../contexts/AuthContext"; // ✅ Correct Path
-import { COLORS, SIZING } from "../constants/theme"; // ✅ Correct Path
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons"; 
+import api from "../api/api"; 
+import AppButton from "../components/AppButton"; 
+import AppTextInput from "../components/AppTextInput"; 
+import ScreenWrapper from "../components/ScreenWrapper"; 
+import { useAuth } from "../contexts/AuthContext"; 
+import { COLORS, SIZING } from "../constants/theme"; 
 
 export default function Signup() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Signup() {
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const validateAndSubmit = async () => {
     if (!name || !email || !dob || !age || !gender || !password) {
@@ -77,12 +79,27 @@ export default function Signup() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <AppTextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      
+      <View style={styles.passwordContainer}>
+        <AppTextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!isPasswordVisible}
+          style={styles.passwordInput}
+        />
+        <TouchableOpacity
+          style={styles.eyeIcon}
+          onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+        >
+          <Ionicons
+            name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+            size={24}
+            color={COLORS.grayDark}
+          />
+        </TouchableOpacity>
+      </View>
+
       <AppTextInput
         placeholder="Date of Birth (YYYY-MM-DD)"
         value={dob}
@@ -123,6 +140,24 @@ const styles = StyleSheet.create({
     marginBottom: SIZING.lg,
     textAlign: "center",
     color: COLORS.text,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: SIZING.md - 4, 
+  },
+  passwordInput: {
+    flex: 1,
+    marginBottom: 0, 
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: SIZING.sm,
   },
   loginLink: {
     alignItems: 'center',
